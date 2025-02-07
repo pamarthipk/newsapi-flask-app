@@ -4,16 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trending News</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <script src="/static/script.js" defer></script>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; text-align: center; }
-        .news-card { border: 1px solid #ddd; padding: 10px; margin: 10px; border-radius: 5px; }
-        h1 { color: #333; }
-        a { text-decoration: none; color: blue; }
-    </style>
 </head>
-<body>
-    <h1>Latest Trending News</h1>
-    <div id="newsContainer">Loading news...</div>
+<body class="bg-light">
+    <div class="container mt-4">
+        <h1 class="text-center text-primary">Latest Trending News</h1>
+
+        <!-- Category Filter -->
+        <div class="text-center my-3">
+            <select id="categorySelect" class="form-select w-50 mx-auto">
+                <option value="general">All News</option>
+                <option value="business">Business</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="health">Health</option>
+                <option value="science">Science</option>
+                <option value="sports">Sports</option>
+                <option value="technology">Technology</option>
+            </select>
+        </div>
+
+        <div id="newsContainer" class="row">Loading news...</div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

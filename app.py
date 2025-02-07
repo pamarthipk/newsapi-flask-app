@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request  # ✅ Add `request`
 import mysql.connector
 import requests
 import threading
@@ -19,45 +19,48 @@ API_KEY = "bc94220d58b3403c8ea280b3e541f05b"
 
 # Fetch Trending News from NewsAPI
 def fetch_trending_news():
-    url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={API_KEY}"
-    response = requests.get(url)
-    data = response.json()
+    categories = ["general", "business", "entertainment", "health", "science", "sports", "technology"]
 
-    if data["status"] == "ok":
-        articles = data["articles"]
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
 
-        # ✅ Store in MySQL
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
+    # ✅ Clear old news before inserting new ones
+    cursor.execute("DELETE FROM trending_news")
 
-        # ✅ Clear old news before inserting new ones (optional)
-        cursor.execute("DELETE FROM trending_news")
+    for category in categories:
+        url = f"https://newsapi.org/v2/top-headlines?country=us&category={category}&apiKey={API_KEY}"
+        response = requests.get(url)
+        data = response.json()
 
-        for article in articles[:200]:  # ✅ Store top 20 articles
-            title = article["title"]
-            source = article["source"]["name"]
-            url = article["url"]
+        if data["status"] == "ok":
+            articles = data["articles"]
 
-            cursor.execute(
-                "INSERT INTO trending_news (title, source, url) VALUES (%s, %s, %s)",
-                (title, source, url)
-            )
+            for article in articles[:5]:  # ✅ Store 5 articles per category
+                title = article["title"]
+                source = article["source"]["name"]
+                url = article["url"]
 
-        conn.commit()
-        cursor.close()
-        conn.close()
+                cursor.execute(
+                    "INSERT INTO trending_news (title, source, url, category) VALUES (%s, %s, %s, %s)",
+                    (title, source, url, category)
+                )
 
-        print("✅ News data stored successfully.")
+    conn.commit()
+    cursor.close()
+    conn.close()
 
-    else:
-        print("❌ Error fetching news:", data)
+    print("✅ News data stored successfully.")
 
 # API to Get News from MySQL
 @app.route('/api/news')
 def get_news():
+    category = request.args.get("category", "general")
+
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM trending_news ORDER BY id DESC LIMIT 200")  # ✅ Fetch 20 articles
+
+    cursor.execute("SELECT * FROM trending_news WHERE category = %s ORDER BY id DESC LIMIT 20", (category,))
+    
     data = cursor.fetchall()
     cursor.close()
     conn.close()
