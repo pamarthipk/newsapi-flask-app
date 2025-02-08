@@ -8,10 +8,11 @@ app = Flask(__name__)
 
 # MySQL Connection
 db_config = {
-    "host": "localhost",
-    "user": "root",
-    "password": "groot",
-    "database": "trends_data"
+    "host": "newsapi-mysql.cjgwsoamo98f.ap-south-1.rds.amazonaws.com",
+    "user": "admin",
+    "password": "Groot1611",
+    "database": "newsapi_db",
+    "port": 3306
 }
 
 # NewsAPI Configuration (Replace with your API key)
@@ -83,3 +84,4 @@ threading.Thread(target=auto_update_news, daemon=True).start()
 if __name__ == '__main__':
     fetch_trending_news()  # Fetch news on startup
     app.run(debug=True)
+
